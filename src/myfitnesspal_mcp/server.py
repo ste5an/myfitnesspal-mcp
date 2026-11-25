@@ -37,6 +37,8 @@ CHANGES_MFP = ToolAnnotations(
 SETS_LOCAL = ToolAnnotations(
     readOnlyHint=False, destructiveHint=True, idempotentHint=True, openWorldHint=False
 )
+# Claude Code asks the user before every call of a tool carrying this flag.
+CONFIRM = {"anthropic/requiresUserInteraction": True}
 
 _store: Store | None = None
 
@@ -304,7 +306,7 @@ def fitness_clear_food_pin(query: str | None = None, clear_all: bool = False) ->
     return {"cleared": int(store.clear_pin(query))}
 
 
-@mcp.tool(title="Delete food entry", annotations=CHANGES_MFP)
+@mcp.tool(title="Delete food entry", annotations=CHANGES_MFP, meta=CONFIRM)
 async def fitness_delete_food(
     query: str, meal: str | None = None, date: str | None = None, ctx: Context = None
 ) -> dict:
@@ -329,7 +331,7 @@ async def fitness_delete_food(
     return {"ok": True, **result, **await refresh_after_write(ctx, day)}
 
 
-@mcp.tool(title="Replace food entry", annotations=CHANGES_MFP)
+@mcp.tool(title="Replace food entry", annotations=CHANGES_MFP, meta=CONFIRM)
 async def fitness_modify_food(
     query: str,
     new_query: str | None = None,
@@ -461,7 +463,7 @@ async def fitness_get_exercise_entries(
     return await with_session(ctx, op)
 
 
-@mcp.tool(title="Delete exercise entry", annotations=CHANGES_MFP)
+@mcp.tool(title="Delete exercise entry", annotations=CHANGES_MFP, meta=CONFIRM)
 async def fitness_delete_exercise(
     query: str,
     date: str | None = None,
